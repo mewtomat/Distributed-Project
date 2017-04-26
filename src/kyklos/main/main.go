@@ -80,6 +80,8 @@ func main(){
 			kyklos.Dump()
 		}else if (command == "dumptable"){
 			kyklos.DumpTable()
+		}else if (command == "dumpdata"){
+			kyklos.DumpData()
 		}else if (command == "set"){
 			var key string
 			var val string
@@ -100,7 +102,7 @@ func main(){
 				fmt.Println("Got Value: ", res)
 			}
 		}else if (command == "help") {
-			fmt.Println("createRing, join, dump, dumptable, get, set, help")
+			fmt.Println("createRing, join, dump, dumptable,dumpdata, get, set, help")
 		}else {
 			//invalid command, show list of commands to user
 		}

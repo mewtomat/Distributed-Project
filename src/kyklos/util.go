@@ -48,6 +48,8 @@ func (node *Finger) notify(req *Finger, _ *struct{}) error{
 	return nil
 }
 
+
+
 func (node *Finger) isnil() bool {
 	return node.Ip == "" && node.Port ==0
 }

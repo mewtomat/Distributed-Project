@@ -35,12 +35,16 @@ func DumpTable(){
 	Debug.Println(myself.finger_table)
 }
 
+func DumpData(){
+	Debug.Println(myself.store)
+}
+
 func Set(key, val string) error{
 	return myself.set(key,val)
 }
 
 func Get(key string)(string, error){
-	return myself.get(key,val)
+	return myself.get(key)
 }
 
 func startServer(addr *net.TCPAddr) error{
@@ -113,6 +117,8 @@ func (node *nodeState) initialiseNode(portnum int) error{
 	node.finger_table_size = 256+1
 	node.hashbits = 256
 	node.rf = 5
+	node.store = make(map[string]string)
+
 	node.finger_table = FingerTable{Fingers: make([]Finger,node.finger_table_size), Valid: make([]bool, node.finger_table_size)} 
 	for i:=0;i<node.finger_table_size;i++{
 		node.finger_table.Valid[i] = false
@@ -237,7 +243,8 @@ func (node *nodeState) join(participant Finger ) error{
 	// let the successor know that now node is its predecessor
 	// successor sets its predecessor node and let's its older predecessor know 
 	// to set node as its successor
-	Info.Println("Join Completed : Finger Table: \n", node.finger_table)
+	// Info.Println("Join Completed : Finger Table: \n", node.finger_table)
+	Info.Println("Join Completed ")
 	return nil
 }
 

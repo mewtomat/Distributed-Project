@@ -184,7 +184,7 @@ func (node *Finger) callRPCNotify(req Finger) (error){
 
 func (node *Finger) callRPCGetValue(key string) (string,error){
 	if fingerEquals(*myself.nodeFinger,*node){
-		res,err := myself.nodeFinger.getValue(key)
+		res,err := myself.getValue(key)
 		return res,err
 	}
 	//else rpc call
@@ -192,7 +192,7 @@ func (node *Finger) callRPCGetValue(key string) (string,error){
 	client, err := rpc.Dial("tcp", addr)
 	if err != nil {
 		Error.Println("dialing", err)
-		return err
+		return "",err
 	}
 	defer client.Close()
 	var reply string
@@ -206,8 +206,8 @@ func (node *Finger) callRPCGetValue(key string) (string,error){
 
 func (node *Finger) callRPCSetValue(key,value string) (error){
 	if fingerEquals(*myself.nodeFinger,*node){
-		err := myself.nodeFinger.setValue(key, value)
-		return res
+		err := myself.setValue(key, value)
+		return err
 	}
 	//else rpc call
 	addr := node.Ip + ":" + strconv.Itoa(node.Port)
@@ -217,7 +217,6 @@ func (node *Finger) callRPCSetValue(key,value string) (error){
 		return err
 	}
 	defer client.Close()
-	var reply string
 	arg := SetKeyValueArg{K:key, V:value}
 	err = client.Call("Finger.SetValue",&arg,nil)
 	if err!=nil{

@@ -22,8 +22,8 @@ func hashFunc(finger Finger) KeySpace {
 	return KeySpace{Data:hasher.Sum([]byte(combined))}
 }
 
-func hasher(key string){
+func hasher(key string) KeySpace{
 	h := sha256.New()
 	combined := key
-	return KeySpace{Data:hasher.Sum([]byte(combined))}
+	return KeySpace{Data:h.Sum([]byte(combined))}
 }
