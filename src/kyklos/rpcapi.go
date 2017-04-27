@@ -8,6 +8,12 @@ type UpdateFingerTableArg struct{
 type SetKeyValueArg struct{
 	K string
 	V string
+	P int
+}
+
+type GetKeysArg struct{
+	P Finger
+	M Finger
 }
 
 func (node *Finger) GetSuccessor( dummy *int , reply *Finger) error {
@@ -78,7 +84,13 @@ func (node *Finger) GetValue(req *string,reply *string) error{
 	return err
 }
 
-func (node *Finger) SetValue(req *SetKeyValueArg,_ *struct{}) error{
-	err := myself.setValue(req.K, req.V)
+func (node *Finger) SetValue(req *SetKeyValueArg,reply *bool) error{
+	vote, err := myself.setValue(req.K, req.V, req.P)
+	*reply = vote
+	return err
+}
+
+func (node *Finger) GetKeys(req *GetKeysArg, _ *struct{}) error{
+	err := myself.sendKeys(req.P, req.M)
 	return err
 }

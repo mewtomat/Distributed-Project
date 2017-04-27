@@ -19,11 +19,18 @@ var myself nodeState
 func hashFunc(finger Finger) KeySpace {
 	hasher := sha256.New()
 	combined := finger.Ip + strconv.Itoa(finger.Port)
-	return KeySpace{Data:hasher.Sum([]byte(combined))}
+	hasher.Write([]byte(combined))
+	ret := KeySpace{Data:hasher.Sum(nil)}
+	// Debug.Println("HashFunc value : ", ret)
+	return ret
 }
 
-func hasher(key string) KeySpace{
+func hasherFunc(key string) KeySpace{
 	h := sha256.New()
-	combined := key
-	return KeySpace{Data:h.Sum([]byte(combined))}
+	// combined := key
+	h.Write([]byte(key))
+	ret  := KeySpace{Data:h.Sum(nil)}
+	// Debug.Println("Key: ", key, "value : ", ret)
+	return ret
+
 }

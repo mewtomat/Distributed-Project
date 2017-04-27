@@ -28,5 +28,8 @@ type nodeState struct{
 	part_of_ring bool
 	hashbits int
 	store map[string]string
+	sm sync.RWMutex
+	tempstore map[string]string
+	tm sync.RWMutex
 	rf int
 }

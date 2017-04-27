@@ -28,6 +28,7 @@ func Join(ip string, port int) error{
 func Dump(){
 	Debug.Println("OwnFinger: ", *own_finger)
 	Debug.Println("Successor: ", myself.finger_table.Fingers[0])
+	Debug.Println("Second_Successor: ", myself.second_successor_finger)
 	Debug.Println("Predecessor: ", myself.predecessor_finger)
 }
 
@@ -61,19 +62,15 @@ func startServer(addr *net.TCPAddr) error{
 }
 
 func startProtocols(){
-	ticker := time.NewTicker(30* time.Millisecond)
-	quit := make(chan struct{})
     for {
-       select {
-        case <- ticker.C:
-            myself.stabilize()
-            myself.fix_fingers()
-        case <- quit:
-            ticker.Stop()
-            return
-        }
+        myself.stabilize()
+        myself.fix_fingers()
+        myself.failureHandler()
+        time.Sleep(time.Duration(100)*time.Millisecond)
     }
 }
+
+
 
 func (node *nodeState) initialiseNode(portnum int) error{
 	//get own's ip address
@@ -118,7 +115,8 @@ func (node *nodeState) initialiseNode(portnum int) error{
 	node.hashbits = 256
 	node.rf = 5
 	node.store = make(map[string]string)
-
+	node.tempstore = make(map[string]string)
+	
 	node.finger_table = FingerTable{Fingers: make([]Finger,node.finger_table_size), Valid: make([]bool, node.finger_table_size)} 
 	for i:=0;i<node.finger_table_size;i++{
 		node.finger_table.Valid[i] = false
@@ -133,6 +131,7 @@ func (node *nodeState) initialiseNode(portnum int) error{
     	CheckError(err3)
     	return err3
     }
+	go startProtocols()
 	return nil
 }
 
@@ -143,7 +142,6 @@ func (node *nodeState) createRing() error{
 		node.finger_table.Fingers[i] = *node.nodeFinger
 		node.finger_table.Valid[i] = true
 	}
-	go startProtocols()
 	node.second_successor_finger = *node.nodeFinger
 	node.predecessor_finger = *node.nodeFinger
 	node.part_of_ring = true
@@ -231,6 +229,13 @@ func (node *nodeState) join(participant Finger ) error{
 		Error.Println("join in node failed: Call to init_finger_table failed")
 		return err
 	}
+
+	err = node.getKeys()
+	if err!=nil{
+		Error.Println("getKeys in node failed")
+		return err
+	}
+
 	err2 := node.update_others()
 	//Debug.Println("Completed asking others to update their finger_tables")
 	if err2 !=nil{
@@ -238,13 +243,25 @@ func (node *nodeState) join(participant Finger ) error{
 		return err2
 	}
 	node.part_of_ring = true
-	go startProtocols()
+	// go startProtocols()
 	// move keys in (predecessor, n] from succesor
 	// let the successor know that now node is its predecessor
 	// successor sets its predecessor node and let's its older predecessor know 
 	// to set node as its successor
 	// Info.Println("Join Completed : Finger Table: \n", node.finger_table)
 	Info.Println("Join Completed ")
+	return nil
+}
+
+func (node *nodeState) getKeys() error {
+	node.finger_table_lock.Lock()
+	successor := node.finger_table.Fingers[0]
+	node.finger_table_lock.Unlock()
+	err := successor.callRPCGetKeys(node.predecessor_finger, *node.nodeFinger)
+	if err!=nil{
+		Error.Println("get keys failed ", err)
+		return err
+	}
 	return nil
 }
 
@@ -365,8 +382,7 @@ func (node *nodeState) update_finger_table(s Finger,i int) error{
 // 	return nil
 // }
 
-//stabilize runs periodically
-func (node *nodeState) stabilize() error {
+func (node *nodeState) failureHandler() error{
 	var successor Finger
 	node.finger_table_lock.Lock()
 	successor = node.finger_table.Fingers[0]
@@ -387,12 +403,22 @@ func (node *nodeState) stabilize() error {
 	} else {
 		node.second_successor_finger = nx
 	}
+	return nil
+}
+
+//stabilize runs periodically
+func (node *nodeState) stabilize() error {
+	var successor Finger
+	node.finger_table_lock.Lock()
+	successor = node.finger_table.Fingers[0]
+	node.finger_table_lock.Unlock()
 	// x:= succesor.getPredecessor()		//rpc call
 	x,err:= successor.callRPCGetPredecessor()		//rpc call
 	if err!=nil{
 		Error.Println("Predecessor call on successor failed: ", err)
 		return err
 	}  
+	Debug.Println("stabilize : pred of successor = ", x)
 	// if (x.Hash lies between node.nodeFinger.Hash and successor.Hash){
 	if (between(hashFunc(*node.nodeFinger),hashFunc(successor),hashFunc(x))){
 		node.finger_table_lock.Lock()
@@ -431,5 +457,23 @@ func (node *nodeState) fix_fingers() error{
 	node.finger_table_lock.Lock()
 	node.finger_table.Fingers[i] = fresh_successor
 	node.finger_table_lock.Unlock()
+	return nil
+}
+
+func (node *nodeState) sendKeys(trgt_pred, trgt Finger ) error{
+	toDelete := []string{}
+	for key,val := range node.store{
+		hashedKey:= hasherFunc(key)
+
+		if betweenRightIncl(hashedKey, hashFunc(trgt_pred), hashFunc(trgt) ){
+			if _, err := trgt.callRPCSetValue(key,val,1);err!=nil{
+				return err
+			}
+			toDelete = append(toDelete, key)
+		}
+	}
+	for _,key := range toDelete{
+		delete(node.store, key)
+	}
 	return nil
 }

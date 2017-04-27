@@ -28,7 +28,7 @@ func (node *Finger) callRPCGetSuccessor() (Finger,error){
 	dummy:=0
 	err = client.Call("Finger.GetSuccessor",&dummy,&reply)
 	if err!=nil{
-		Error.Println("callRPCGetSuccessor Failed")
+		Error.Println("callRPCGetSuccessor Failed ", err)
 		return Finger{}, err
 	}
 	return reply,nil
@@ -54,7 +54,7 @@ func (node *Finger) callRPCGetPredecessor() (Finger,error){
 	dummy := 0
 	err = client.Call("Finger.GetPredecessor",&dummy,&reply)
 	if err!=nil{
-		Error.Println("callRPCGetPredecessor Failed")
+		Error.Println("callRPCGetPredecessor Failed ", err)
 		return Finger{}, err
 	}
 	return reply,nil
@@ -128,7 +128,7 @@ func (node *Finger) callRPCSetPredecessor(pred Finger) (error){
 	dummy :=0
 	err = client.Call("Finger.SetPredecessor",&pred,&dummy)
 	if err!=nil{
-		Error.Println("callRPCSetPredecessor Failed")
+		Error.Println("callRPCSetPredecessor Failed ", err)
 		return err
 	}
 	//Debug.Println("Successfully returned from callRPCSetPredecessor ")
@@ -153,7 +153,7 @@ func (node *Finger) callRPCUpdateFingerTable(s Finger, i int) (error){
 	dummy :=0
 	err = client.Call("Finger.Update_finger_table",&arg,&dummy)
 	if err!=nil{
-		Error.Println("callRPCUpdateFingerTable Failed")
+		Error.Println("callRPCUpdateFingerTable Failed ", err)
 		return err
 	}
 	return nil
@@ -176,7 +176,7 @@ func (node *Finger) callRPCNotify(req Finger) (error){
 	dummy :=0 
 	err = client.Call("Finger.Notify",&req,&dummy)
 	if err!=nil{
-		Error.Println("RPCCallNotify Failed")
+		Error.Println("RPCCallNotify Failed ", err)
 		return err
 	}
 	return nil
@@ -198,30 +198,48 @@ func (node *Finger) callRPCGetValue(key string) (string,error){
 	var reply string
 	err = client.Call("Finger.GetValue",&key,&reply)
 	if err!=nil{
-		Error.Println("RPCCallGetValue Failed")
+		Error.Println("RPCCallGetValue Failed : ", err)
 		return "",err
 	}
 	return reply,err
 }
 
-func (node *Finger) callRPCSetValue(key,value string) (error){
+func (node *Finger) callRPCSetValue(key,value string, phase int) (bool, error){
 	if fingerEquals(*myself.nodeFinger,*node){
-		err := myself.setValue(key, value)
-		return err
+		vote, err := myself.setValue(key, value, phase)
+		return vote, err
 	}
 	//else rpc call
 	addr := node.Ip + ":" + strconv.Itoa(node.Port)
 	client, err := rpc.Dial("tcp", addr)
 	if err != nil {
 		Error.Println("dialing", err)
-		return err
+		return false, err
 	}
 	defer client.Close()
-	arg := SetKeyValueArg{K:key, V:value}
-	err = client.Call("Finger.SetValue",&arg,nil)
+	arg := SetKeyValueArg{K:key, V:value, P:phase}
+	var reply bool
+	err = client.Call("Finger.SetValue",&arg,&reply)
 	if err!=nil{
-		Error.Println("RPCCallSetValue Failed")
-		return err
+		Error.Println("RPCCallSetValue Failed ", err)
+		return false, err
+	}
+	return reply, err
+}
+
+func (node *Finger) callRPCGetKeys(pred, me Finger) (error){
+	addr := node.Ip + ":" + strconv.Itoa(node.Port)
+	client, err := rpc.Dial("tcp", addr)
+	if err != nil {
+		Error.Println("dialing", err)
+		return  err
+	}
+	defer client.Close()
+	arg := GetKeysArg{P:pred, M: me}
+	err = client.Call("Finger.GetKeys",&arg,nil)
+	if err!=nil{
+		Error.Println("callRPCGetKeys Failed ", err)
+		return  err
 	}
 	return err
 }
