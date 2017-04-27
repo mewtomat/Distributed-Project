@@ -11,6 +11,8 @@ var (
     Info    *log.Logger
     Warning *log.Logger
     Error   *log.Logger
+    TwoPC   *log.Logger
+    Consis  *log.Logger
 )
 
 func Init(
@@ -36,6 +38,16 @@ func Init(
         log.Ldate|log.Ltime|log.Lshortfile)
 }
 
+func InitFileLogs(pcHandle io.Writer,
+    csHandle io.Writer) {
+    TwoPC = log.New(pcHandle,
+        "2PC: ",
+        log.Ldate|log.Ltime|log.Lshortfile)
+
+    Consis = log.New(csHandle,
+        "Consistency: ",
+        log.Ldate|log.Ltime|log.Lshortfile)
+}
 
 func CheckError(err error) {
     if err != nil {

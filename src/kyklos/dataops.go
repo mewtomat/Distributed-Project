@@ -21,6 +21,7 @@ func (node *nodeState) getValue(key string) (string, error){
 	if ok{
 		return "",errors.New("Key unavailable")
 	}
+	Consis.Println("Read: Key: ", key, " Value: ", val)
 	return val,nil
 }
 
@@ -47,6 +48,7 @@ func (node *nodeState) setValue(key,value string, phase int)(bool, error){
 		node.store[key] = value
 		node.sm.Unlock()
 
+		Consis.Println("Write: Key: ", key, " Value: ", value)
 		return true, nil
 	} else if phase == 2 {
 		node.tm.Lock()
@@ -71,7 +73,7 @@ func (node *nodeState) get(key string) (string,error) {
 		handler, err := node.findSuccessor(hasherFunc(combined_key))
 		// Debug.Println(handler)
 		if err !=nil{
-			Error.Println("Couldn't find the node for this key")
+			// Error.Println("Couldn't find the node for this key")
 			continue
 		}
 		value, err := handler.callRPCGetValue(combined_key)
@@ -100,24 +102,23 @@ func (node* nodeState) sendAbort(key,value string, idx int){
 
 func (node* nodeState) set(key,value string)(error){
 
+	TwoPC.Println("Initiating Phase 0 (ask) for Key: ", key, " Value: ",value )
 	for {
 		voteChannel :=make(chan bool, node.rf+5)
 		for i:=0;i<node.rf;i++{
 			combined_key := key + "_" + strconv.Itoa(i)
 
 			go func(voteChannel chan bool, combined_key string){
-				// Debug.Println(combined_key)
-				// Debug.Println(hasherFunc(combined_key))
 				handler, err := node.findSuccessor(hasherFunc(combined_key))
 				if err !=nil{
-					Error.Println("Couldn't find the node for this key")
+					// Error.Println("Couldn't find the node for this key")
 					voteChannel<-false
 					return 
 				}
 				vote,err := handler.callRPCSetValue(combined_key, value, 0)
 				voteChannel <-vote
 				if err!=nil{
-					Error.Println("Setting value of ", key , ", idx", i, " in phase 0 failed")
+					// Error.Println("Setting value of ", key , ", idx", i, " in phase 0 failed")
 					return 
 				}
 			}(voteChannel, combined_key)
@@ -136,6 +137,7 @@ func (node* nodeState) set(key,value string)(error){
 			}
 		}
 		if proceed{
+			TwoPC.Println("Proceeding to Phase 1 (Commit) for Key: ", key, " Value: ",value )
 			//reached here -> all replied yes, send commit to everyone
 			for i:=0;i<node.rf;i++{
 				combined_key := key + "_" + strconv.Itoa(i)
@@ -145,20 +147,23 @@ func (node* nodeState) set(key,value string)(error){
 					handler, err := node.findSuccessor(hasherFunc(combined_key))
 					// Debug.Println(handler)
 					if err !=nil{
-						Error.Println("Couldn't find the node for this key")
+						// Error.Println("Couldn't find the node for this key")
 					}
 					_,err = handler.callRPCSetValue(combined_key, value, 1)
 					if err!=nil{
-						Error.Println("Setting value of ", key , ", idx", i, " in phase 1 failed")
+						// Error.Println("Setting value of ", key , ", idx", i, " in phase 1 failed")
 					}
 				}(combined_key)
 			}
 			break
 		} else {
+			TwoPC.Println("Negative vote for Key: ", key, " Value: ",value )
+			TwoPC.Println("Aborting for now" )
 			node.sendAbort(key, value,node.rf)
 		}
 		backoff := rand.Intn(31)
 		backoff = backoff+10
+		TwoPC.Println("Going into backoff for ", backoff,"ms for Key: ", key, " Value: ",value )
 		time.Sleep(time.Duration(backoff)*time.Millisecond)
 	}
 	return nil

@@ -29,9 +29,9 @@ import (
 
 func main(){
 	kyklos.Init(os.Stderr,os.Stdout, os.Stdout, os.Stderr)
+	var portnum int
 	for {
 		fmt.Printf("Enter Portnumber: ",)
-		var portnum int
 		_, err := fmt.Scanf("%d", &portnum)
 		if err !=nil{
 			fmt.Println("Can't Input Portnumber")
@@ -45,6 +45,10 @@ func main(){
 			break
 		}
 	}
+	pcFile,_:=os.OpenFile("2PC.log"+strconv.Itoa(portnum), os.O_RDWR | os.O_CREATE, 0666)
+	scFile,_:=os.OpenFile("Consistency.log"+strconv.Itoa(portnum), os.O_RDWR | os.O_CREATE, 0666)
+	kyklos.InitFileLogs(pcFile, scFile)
+
 	//Ask for user prompt
 	for{
 		fmt.Printf("kyklos>", )
@@ -131,6 +135,12 @@ func main(){
 					time.Sleep(time.Duration(100)*time.Microsecond)
 				}
 				fmt.Println("Average time taken for put operation: %v", avgput/1000.0)
+		}else if(command == "keytest"){
+			keyVal := strconv.Itoa(42)
+			for i:=0;i<5;i++{
+				val := strconv.Itoa(rand.Intn(200))
+				kyklos.Set(keyVal, val)
+			}
 		}else if(command == "get"){
 			var key string
 			fmt.Scanf("%s", &key)
