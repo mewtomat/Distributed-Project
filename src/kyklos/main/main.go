@@ -22,6 +22,9 @@ import (
 	"fmt"
 	"os"
 	"kyklos"
+	"time"
+	"math/rand"
+	"strconv"
 )
 
 func main(){
@@ -92,7 +95,43 @@ func main(){
 			}else {
 				fmt.Println("Successfully set")
 			}
-		} else if(command == "get"){
+		} else if (command == "test"){
+				kyklos.Set("1","1")
+				kyklos.Set("2","2")
+				kyklos.Set("3","3")
+				kyklos.Set("4","4")
+				kyklos.Set("5","5")
+				kyklos.Set("6","6")
+				kyklos.Set("7","7")
+				kyklos.Set("8","8")
+				kyklos.Set("9","9")
+				kyklos.Set("0","0")
+				avgget := time.Duration(0)
+				for i:=0; i<1000; i++{
+					num := rand.Int()%10
+					start := time.Now()
+					// cmdget(nodes, strconv.Itoa(num))
+					kyklos.Get(strconv.Itoa(num))
+					elapsed := time.Since(start)
+					avgget += elapsed
+				}
+				fmt.Println("Average time taken for get operation: %v", avgget/1000.0)
+
+				avgput := time.Duration(0)
+				for i:=0; i<1000; i++{
+					num1 := rand.Int()%100
+					num2 := rand.Int()%100
+					start := time.Now()
+					err := kyklos.Set(strconv.Itoa(num1), strconv.Itoa(num2))
+					if err!=nil{
+						fmt.Println("test set failed for id ", num1)
+					}
+					elapsed := time.Since(start)
+					avgput += elapsed
+					time.Sleep(time.Duration(100)*time.Microsecond)
+				}
+				fmt.Println("Average time taken for put operation: %v", avgput/1000.0)
+		}else if(command == "get"){
 			var key string
 			fmt.Scanf("%s", &key)
 			res, ok := kyklos.Get(key)
