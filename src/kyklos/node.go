@@ -62,14 +62,31 @@ func startServer(addr *net.TCPAddr) error{
 }
 
 func startProtocols(){
-    for {
-        myself.stabilize()
-        myself.fix_fingers()
-        myself.failureHandler()
-        time.Sleep(time.Duration(100)*time.Millisecond)
-    }
+	go doStabilize()
+	go doFixFingers()
+	go doFailureHandling()
 }
 
+func doStabilize(){
+ 	for{
+	    go myself.stabilize()
+	    time.Sleep(time.Duration(500)*time.Millisecond)
+	}
+}
+
+func doFixFingers(){
+	for{
+	    go myself.fix_fingers()
+	    time.Sleep(time.Duration(50)*time.Millisecond)
+	}
+}
+
+func doFailureHandling(){
+	for{
+	    go myself.failureHandler()
+	    time.Sleep(time.Duration(1000)*time.Millisecond)
+	}
+}
 
 
 func (node *nodeState) initialiseNode(portnum int) error{
@@ -131,7 +148,7 @@ func (node *nodeState) initialiseNode(portnum int) error{
     	CheckError(err3)
     	return err3
     }
-	go startProtocols()
+	// go startProtocols()
 	return nil
 }
 
@@ -145,6 +162,7 @@ func (node *nodeState) createRing() error{
 	node.second_successor_finger = *node.nodeFinger
 	node.predecessor_finger = *node.nodeFinger
 	node.part_of_ring = true
+	go startProtocols()
 	Info.Println("Create Ring Completed : part of ring: ", node.part_of_ring, "\n predecessor : " ,node.predecessor_finger, "\n successor: ",node.finger_table.Fingers[0])
 	return nil
 }
@@ -243,7 +261,7 @@ func (node *nodeState) join(participant Finger ) error{
 		return err2
 	}
 	node.part_of_ring = true
-	// go startProtocols()
+	go startProtocols()
 	// move keys in (predecessor, n] from succesor
 	// let the successor know that now node is its predecessor
 	// successor sets its predecessor node and let's its older predecessor know 
@@ -418,7 +436,7 @@ func (node *nodeState) stabilize() error {
 		Error.Println("Predecessor call on successor failed: ", err)
 		return err
 	}  
-	Debug.Println("stabilize : pred of successor = ", x)
+	// Debug.Println("stabilize : pred of successor = ", x)
 	// if (x.Hash lies between node.nodeFinger.Hash and successor.Hash){
 	if (between(hashFunc(*node.nodeFinger),hashFunc(successor),hashFunc(x))){
 		node.finger_table_lock.Lock()

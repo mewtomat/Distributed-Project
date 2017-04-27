@@ -78,6 +78,12 @@ func (node *nodeState) get(key string) (string,error) {
 		if err!=nil{
 			continue
 		}else{
+			//update the other replicas which failed till now
+			for failedidx :=0;failedidx<idx ; failedidx ++{
+				combined_key2 := key + "_" + strconv.Itoa(failedidx)
+				handler, _ := node.findSuccessor(hasherFunc(combined_key2))
+				handler.callRPCSetValue(combined_key2, value, 1)
+			}
 			return value,err
 		}
 	}
@@ -95,7 +101,7 @@ func (node* nodeState) sendAbort(key,value string, idx int){
 func (node* nodeState) set(key,value string)(error){
 
 	for {
-		voteChannel :=make(chan bool)
+		voteChannel :=make(chan bool, node.rf+5)
 		for i:=0;i<node.rf;i++{
 			combined_key := key + "_" + strconv.Itoa(i)
 
