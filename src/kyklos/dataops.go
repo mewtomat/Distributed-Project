@@ -102,8 +102,8 @@ func (node* nodeState) sendAbort(key,value string, idx int){
 
 func (node* nodeState) set(key,value string)(error){
 
-	TwoPC.Println("Initiating Phase 0 (ask) for Key: ", key, " Value: ",value )
 	for {
+		TwoPC.Println("Initiating Phase 0 (ask) for Key: ", key, " Value: ",value )
 		voteChannel :=make(chan bool, node.rf+5)
 		for i:=0;i<node.rf;i++{
 			combined_key := key + "_" + strconv.Itoa(i)

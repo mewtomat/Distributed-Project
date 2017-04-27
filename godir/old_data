@@ -1,0 +1,23 @@
+1:
+Average time taken for get operation: %v 193.388µs
+Average time taken for put operation: %v 3.918914ms
+
+2:
+Average time taken for get operation: %v 393.436µs
+Average time taken for put operation: %v 8.249106ms
+
+3:
+Average time taken for get operation: %v 384.239µs
+Average time taken for put operation: %v 8.073862ms
+
+4:
+Average time taken for get operation: %v 419.826µs
+Average time taken for put operation: %v 8.164905ms
+
+5:
+Average time taken for get operation: %v 934.927µs
+Average time taken for put operation: %v 21.520207ms
+
+10:
+Average time taken for get operation: %v 2.504347ms
+Average time taken for put operation: %v 83.123574ms
