@@ -1,0 +1,38 @@
+2PC: 2017/04/27 09:19:05 dataops.go:106: Initiating Phase 0 (ask) for Key:  42  Value:  77
+2PC: 2017/04/27 09:19:05 dataops.go:140: Proceeding to Phase 1 (Commit) for Key:  42  Value:  77
+2PC: 2017/04/27 09:19:05 dataops.go:106: Initiating Phase 0 (ask) for Key:  42  Value:  142
+2PC: 2017/04/27 09:19:05 dataops.go:160: Negative vote for Key:  42  Value:  142
+2PC: 2017/04/27 09:19:05 dataops.go:161: Aborting for now
+2PC: 2017/04/27 09:19:05 dataops.go:166: Going into backoff for  32 ms for Key:  42  Value:  142
+2PC: 2017/04/27 09:19:05 dataops.go:106: Initiating Phase 0 (ask) for Key:  42  Value:  142
+2PC: 2017/04/27 09:19:05 dataops.go:140: Proceeding to Phase 1 (Commit) for Key:  42  Value:  142
+2PC: 2017/04/27 09:19:05 dataops.go:106: Initiating Phase 0 (ask) for Key:  42  Value:  175
+2PC: 2017/04/27 09:19:05 dataops.go:160: Negative vote for Key:  42  Value:  175
+2PC: 2017/04/27 09:19:05 dataops.go:161: Aborting for now
+2PC: 2017/04/27 09:19:05 dataops.go:166: Going into backoff for  13 ms for Key:  42  Value:  175
+2PC: 2017/04/27 09:19:05 dataops.go:106: Initiating Phase 0 (ask) for Key:  42  Value:  175
+2PC: 2017/04/27 09:19:05 dataops.go:160: Negative vote for Key:  42  Value:  175
+2PC: 2017/04/27 09:19:05 dataops.go:161: Aborting for now
+2PC: 2017/04/27 09:19:05 dataops.go:166: Going into backoff for  20 ms for Key:  42  Value:  175
+2PC: 2017/04/27 09:19:06 dataops.go:106: Initiating Phase 0 (ask) for Key:  42  Value:  175
+2PC: 2017/04/27 09:19:06 dataops.go:160: Negative vote for Key:  42  Value:  175
+2PC: 2017/04/27 09:19:06 dataops.go:161: Aborting for now
+2PC: 2017/04/27 09:19:06 dataops.go:166: Going into backoff for  32 ms for Key:  42  Value:  175
+2PC: 2017/04/27 09:19:06 dataops.go:106: Initiating Phase 0 (ask) for Key:  42  Value:  175
+2PC: 2017/04/27 09:19:06 dataops.go:160: Negative vote for Key:  42  Value:  175
+2PC: 2017/04/27 09:19:06 dataops.go:161: Aborting for now
+2PC: 2017/04/27 09:19:06 dataops.go:166: Going into backoff for  28 ms for Key:  42  Value:  175
+2PC: 2017/04/27 09:19:06 dataops.go:106: Initiating Phase 0 (ask) for Key:  42  Value:  175
+2PC: 2017/04/27 09:19:06 dataops.go:140: Proceeding to Phase 1 (Commit) for Key:  42  Value:  175
+2PC: 2017/04/27 09:19:06 dataops.go:106: Initiating Phase 0 (ask) for Key:  42  Value:  68
+2PC: 2017/04/27 09:19:06 dataops.go:160: Negative vote for Key:  42  Value:  68
+2PC: 2017/04/27 09:19:06 dataops.go:161: Aborting for now
+2PC: 2017/04/27 09:19:06 dataops.go:166: Going into backoff for  26 ms for Key:  42  Value:  68
+2PC: 2017/04/27 09:19:06 dataops.go:106: Initiating Phase 0 (ask) for Key:  42  Value:  68
+2PC: 2017/04/27 09:19:06 dataops.go:140: Proceeding to Phase 1 (Commit) for Key:  42  Value:  68
+2PC: 2017/04/27 09:19:06 dataops.go:106: Initiating Phase 0 (ask) for Key:  42  Value:  54
+2PC: 2017/04/27 09:19:06 dataops.go:160: Negative vote for Key:  42  Value:  54
+2PC: 2017/04/27 09:19:06 dataops.go:161: Aborting for now
+2PC: 2017/04/27 09:19:06 dataops.go:166: Going into backoff for  28 ms for Key:  42  Value:  54
+2PC: 2017/04/27 09:19:06 dataops.go:106: Initiating Phase 0 (ask) for Key:  42  Value:  54
+2PC: 2017/04/27 09:19:06 dataops.go:140: Proceeding to Phase 1 (Commit) for Key:  42  Value:  54

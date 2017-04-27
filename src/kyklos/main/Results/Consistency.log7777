@@ -1,0 +1,11 @@
+Consistency: 2017/04/27 09:19:05 dataops.go:51: Write: Key:  42_4  Value:  77
+Consistency: 2017/04/27 09:19:05 dataops.go:51: Write: Key:  42_4  Value:  142
+Consistency: 2017/04/27 09:19:06 dataops.go:51: Write: Key:  42_4  Value:  175
+Consistency: 2017/04/27 09:19:06 dataops.go:51: Write: Key:  42_4  Value:  68
+Consistency: 2017/04/27 09:19:06 dataops.go:51: Write: Key:  42_4  Value:  54
+Consistency: 2017/04/27 09:19:06 dataops.go:51: Write: Key:  42_4  Value:  177
+Consistency: 2017/04/27 09:19:07 dataops.go:51: Write: Key:  42_4  Value:  61
+Consistency: 2017/04/27 09:19:07 dataops.go:51: Write: Key:  42_4  Value:  151
+Consistency: 2017/04/27 09:19:07 dataops.go:51: Write: Key:  42_4  Value:  133
+Consistency: 2017/04/27 09:19:07 dataops.go:51: Write: Key:  42_4  Value:  14
+

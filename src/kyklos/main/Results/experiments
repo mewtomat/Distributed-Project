@@ -1,0 +1,5 @@
+Node		Get		Set			Average Get 		Average Set
+1			10000	10000			6u					570u
+2(diff)		1000 	1000 			20m					111ms
+3(2+1)		1000 	1000 			22.7m				109
+4(2+2)		1000 	1000 			24m					116m
