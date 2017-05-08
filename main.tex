@@ -1,0 +1,77 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage[a4paper, total={6in, 8in}]{geometry}
+\usepackage[]{graphicx}
+\usepackage[]{float}
+\usepackage{titlesec}
+\usepackage{spverbatim}
+
+
+\setcounter{secnumdepth}{4}
+
+
+\titleformat{\paragraph}
+{\normalfont\normalsize\bfseries}{\theparagraph}{1em}{}
+\titlespacing*{\paragraph}
+{0pt}{3.25ex plus 1ex minus .2ex}{1.5ex plus .2ex}
+
+\begin{document}
+\author{Anmol Arora(130050027) , Pranjal Khare(130050028), Ritish Goyal(130050086)}
+\title{CS451: Project Test Plan   \\
+    Kyklos: A modified Chord DHT}
+\date{Mar 26 2017}
+\maketitle
+
+\section{Introduction}
+This document describes in detail the procedure to test each required feature. It lays out what processes will be started on what machines and when, what each process does.
+
+\section{Demonstrating The Features}
+\subsection{The Setup}
+There are two kinds of machines: Client and Server. The Server machines form a distributed system for key-value storage by following the modified chord DHT protocol.
+The client machines can contact any of the server machines to perform following operations:
+\begin{itemize}
+    \item Insert(key,value)
+    \item Delete(key)
+    \item Get(key) 
+\end{itemize}
+The hashing function followed is SHA1 and TCP is used for communication between nodes.\\
+A simple interface process will run on any new node joining this system. Using this interface the user can do the following operations:
+\begin{itemize}
+    \item Any of the Insert, Delete, Get operations : This requires IP address, Port No. of any server known.
+    \item Enable Server: This also requires IP address and Port No. of any current server. If the current node is not a server already, the process initiates the node joining process(described in following section) by contacting the server. 
+    \item Disable Server: If the current node is a server, the process initiates the process of leaving the store. 
+\end{itemize}
+
+\subsection{Addition of Node}
+The user can "enable server" on any node through the interface process. This  initiates the node joining procedure on current node(which performs hashing of IP, PortNo) and contacts the remote server. The remote process will communicate with our node and enable it to join the store. The new node will also start the heartbeat and cluster communication processes. \\
+Each process will also be writing the communicated info in its log. The new node, after joining, will write the cluster number and its keyspace in its log. Its log will be checked to demonstrate that it has successfully joined the cluster. 
+
+\subsection{Deletion of Node}
+The user can "disable server" on any node through the interface process. This  initiates the current node to stop its heartbeat and cluster communication processes. It then sets its own server flag to false and stops behaving as a server. In our implementation we are performing deletion by way of node failure.  \\
+The node's withdrawl will create cause its clusters to trigger and will also cause merging of keyspace. Since any node writes to its log on changing keyspace or cluster, the log will be checked to demonstrate that the node has successfully exited the cluster. 
+
+\subsection{Node Failure}
+The node can be simply removed from the system. This will imitate node failure. Each server process had started its heartbeat and cluster communication channels when it joined the store. On removal, the other nodes won't receive heartbeat anymore and initiate the trigger processes which re-balances the individual clusters. New nodes will be added to the disturbed clusters.\\
+Any processes initiating the trigger and joining new clusters during re-balancing will write the relevant info in their log. The reformed keyspaces will also be written to the respective nodes. 
+The logs belonging to cluster of failing node can be checked to demonstrate that node failure is being handled successfully. 
+
+\subsection{Replication of Node}
+The primary node for a keyspace will be terminated unexpectedly. Client queries on keys belonging to this keypspace should still be served if replication is working correctly. This demonstrates replication and fault tolerance. \\
+The client can spawn many processes, each performing operations on the same key. As the number of spawned client processes are increased, the load balancing should kick in and the operation latency should not increase (or if it does, it should be sublinearly).
+
+\subsection{Two Phase Commit Transaction Protocol}
+Following transaction will be initiated on client:
+\begin{spverbatim}
+(Initial values of k1, k2 are v_1, v_2)
+start
+    Write(k1, v1)
+    Write(k2, v2)
+    v3 = Read(k3)
+    Write(k2, v3)
+end
+
+\end{spverbatim}
+Where k1, k2 and k3 belong to different keyspaces and the key k3 doesn't exist. Since k3 doesn't exist, third read operation will fail, causing the whole transaction to be rolled back .\\
+We will now perform get operations on key k1 and k2. If we get the original values of k1 \& k2 (v\_1, v\_2), it means that 2P commit protocol is working correctly.
+
+\end{document}

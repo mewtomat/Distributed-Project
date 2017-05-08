@@ -111,18 +111,19 @@ func main(){
 				kyklos.Set("9","9")
 				kyklos.Set("0","0")
 				avgget := time.Duration(0)
-				for i:=0; i<1000; i++{
+				for i:=0; i<50; i++{
 					num := rand.Int()%10
 					start := time.Now()
 					// cmdget(nodes, strconv.Itoa(num))
 					kyklos.Get(strconv.Itoa(num))
 					elapsed := time.Since(start)
 					avgget += elapsed
+					time.Sleep(time.Duration(100)*time.Millisecond)
 				}
-				fmt.Println("Average time taken for get operation: %v", avgget/1000.0)
+				fmt.Println("Average time taken for get operation: %v", avgget/50.0)
 
 				avgput := time.Duration(0)
-				for i:=0; i<1000; i++{
+				for i:=0; i<50; i++{
 					num1 := rand.Int()%100
 					num2 := rand.Int()%100
 					start := time.Now()
@@ -132,9 +133,9 @@ func main(){
 					}
 					elapsed := time.Since(start)
 					avgput += elapsed
-					time.Sleep(time.Duration(100)*time.Microsecond)
+					time.Sleep(time.Duration(100)*time.Millisecond	)
 				}
-				fmt.Println("Average time taken for put operation: %v", avgput/1000.0)
+				fmt.Println("Average time taken for put operation: %v", avgput/50.0)
 		}else if(command == "keytest"){
 			keyVal := strconv.Itoa(42)
 			for i:=0;i<5;i++{
